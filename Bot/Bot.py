@@ -1,5 +1,6 @@
-from telegram import InlineKeyboardButton, InlineKeyboardMarkup
+from telegram import InlineKeyboardMarkup
 from telegram.ext import Updater, CommandHandler, CallbackQueryHandler, Application
+from keybord import KMain_meny, KEmployees_menu, start
 
 TOKEN = "6500071185:AAEQ_ChvOVjhwJLaJxwBN9JDqDbrDhNrnyc"
 
@@ -10,33 +11,18 @@ class TelegramBot:
         self.users = {}  # Dictionary to store user information
 
     async def start(self, update, context):
-        keyboard = [
-            [InlineKeyboardButton("Авторизация", callback_data="auth")]
-        ]
-        reply_markup = InlineKeyboardMarkup(keyboard)
+        reply_markup = InlineKeyboardMarkup(start)
         await update.message.reply_text("Добро пожаловать! Выберите действие:", reply_markup=reply_markup)
 
     async def main_menu(self, update, context):
-        keyboard = [
-            [InlineKeyboardButton("Сменить пользователя", callback_data="auth")],
-            [InlineKeyboardButton("Сменить компанию", callback_data="auth")],
-            [InlineKeyboardButton("Сотрудники", callback_data="employees")]
-        ]
-        reply_markup = InlineKeyboardMarkup(keyboard)
+        reply_markup = InlineKeyboardMarkup(KMain_meny)
         await context.bot.edit_message_text(chat_id=update.callback_query.message.chat_id,
                                       message_id=update.callback_query.message.message_id,
                                       text="Главное меню:",
                                       reply_markup=reply_markup)
 
     async def employees_menu(self, update, context):
-        keyboard = [
-            [InlineKeyboardButton("Поиск по email", callback_data="search_email")],
-            [InlineKeyboardButton("Поиск по проекту", callback_data="search_project")],
-            [InlineKeyboardButton("Дать/Забрать админку", callback_data="admin")],
-            [InlineKeyboardButton("Удалить сотрудника", callback_data="delete")],
-            [InlineKeyboardButton("Назад", callback_data="back")]
-        ]
-        reply_markup = InlineKeyboardMarkup(keyboard)
+        reply_markup = InlineKeyboardMarkup(KEmployees_menu)
         await context.bot.edit_message_text(chat_id=update.callback_query.message.chat_id,
                                       message_id=update.callback_query.message.message_id,
                                       text="Меню сотрудников:",
