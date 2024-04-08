@@ -1,5 +1,6 @@
 from telegram import InlineKeyboardButton, InlineKeyboardMarkup
 from telegram.ext import Updater, CommandHandler, CallbackQueryHandler, Application
+from Bot.keybord import KMain_meny
 
 TOKEN = "6500071185:AAEQ_ChvOVjhwJLaJxwBN9JDqDbrDhNrnyc"
 
