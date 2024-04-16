@@ -128,7 +128,21 @@ class NetworkingManager:
 
         response = requests.request("PUT", url, json=payload, headers=headers)
 
-        print(response.text)    
+        print(response.text)  
+
+    @staticmethod
+    def deleteUser(key: str, user_id: str):
+        url = f"https://ru.yougile.com/api-v2/users/{user_id}"
+
+        headers = {
+            "Content-Type": "application/json",
+            "Authorization": f"Bearer {key}"
+        }
+
+        response = requests.request("DELETE", url, headers=headers)
+
+        print(response.text)
+
 
     @staticmethod
     def getProjects(key: str):
@@ -146,6 +160,8 @@ class NetworkingManager:
         project_names =  [project["title"] for project in data["content"]]
 
         print(ids, project_names)
+
+    
     
     @staticmethod
     def getProjectById(key: str, project_id: str):
@@ -157,8 +173,17 @@ class NetworkingManager:
         }
 
         response = requests.request("GET", url, headers=headers)
+        data = response.json()
 
-        print(response.text)
+        users = data["users"]
+        print(users)
+
+    @staticmethod
+    def getUsersByProject(key: str, project_id: str):
+        ...
+
+
+    
 
 NetworkingManager.getProjectById(key=key, project_id="42b08f17-b53c-4aee-8b1e-f83039c677ff")
 # NetworkingManager.getProjects(key)
