@@ -56,8 +56,11 @@ class NetworkingManager:
         headers = {"Content-Type": "application/json"}
 
         response = requests.request("POST", url, json=payload, headers=headers)
+        data = response.json()
+        if type(data) == type(list()):
+            return data[0]['key']
+        else: return data['key']
 
-        print(response.text)
 
     
     @staticmethod
@@ -98,6 +101,20 @@ class NetworkingManager:
 
         print(response.text)
 
+    @staticmethod
+    def isAdmin(id: str, key: str):
+        url = f"https://ru.yougile.com/api-v2/users/{id}"
+
+        headers = {
+            "Content-Type": "application/json",
+            "Authorization": f"Bearer {key}"
+        }
+
+        response = requests.request("GET", url, headers=headers)
+        data = response.json()
+
+        return data['isAdmin']
+
 
     @staticmethod
     def inviteStaff(email: str, key: str, isAdmin = False):
@@ -114,8 +131,11 @@ class NetworkingManager:
         }
 
         response = requests.request("POST", url, json=payload, headers=headers)
+        if response.status_code == 201:
+            print(True)
+        else: print(False)
 
-        print(response.text)
+
 
     @staticmethod
     def giveAdmin(id: str, key: str, isAdmin: bool):
@@ -407,11 +427,11 @@ class NetworkingManager:
         print(response.text)
 
     @staticmethod
-    def getTasks(column_id: str, key: str):
+    def getTasksByColumn(column_id: str, key: str):
 
         url = "https://ru.yougile.com/api-v2/tasks"
 
-        querystring = {"columnId":f"{column_id}"}
+        querystring = {"columnId": f"{column_id}"}
 
         headers = {
             "Content-Type": "application/json",
@@ -421,15 +441,105 @@ class NetworkingManager:
         response = requests.request("GET", url, headers=headers, params=querystring)
 
         print(response.text)
+
+    @staticmethod
+    def getTasksByTitle(title: str, key: str):
+
+        url = "https://ru.yougile.com/api-v2/tasks"
+
+        querystring = {"title": f"{title}"}
+
+        headers = {
+            "Content-Type": "application/json",
+            "Authorization": f"Bearer {key}"
+        }
+
+        response = requests.request("GET", url, headers=headers, params=querystring)
+
+        print(response.text)
+
+    @staticmethod
+    def getTaskById(task_id: str, key: str):
+
+        url = f"https://ru.yougile.com/api-v2/tasks/{task_id}"
+
+        headers = {
+            "Content-Type": "application/json",
+            "Authorization": f"Bearer {key}"
+        }
+
+        response = requests.request("GET", url, headers=headers)
+
+        print(response.text)
     
+    @staticmethod
+    def createTask(columnId: str, title: str, key: str, description: str = None):
+
+        url = "https://ru.yougile.com/api-v2/tasks"
+
+        payload = {
+            "title": f"{title}",
+            "columnId": f"{columnId}",
+            "description": f"{description}",
+            "archived": False,
+            "completed": False,
+            # "subtasks": ["329c548b-4869-43e6-a094-9a30e9eed819"],
+            # "assigned": ["80eed1bd-eda3-4991-ac17-09d28566749d"],
+            "deadline": {
+                "deadline": 1653029146646,
+                "startDate": 1653028146646,
+                "withTime": True
+            },
+            # "timeTracking": {
+            #     "plan": 10,
+            #     "work": 5
+            # },
+            "checklists": [
+                {
+                    "title": "list 1",
+                    "items": [
+                        {
+                            "title": "option 1",
+                            "isCompleted": False
+                        },
+                        {
+                            "title": "option 2",
+                            "isCompleted": False
+                        }
+                    ]
+                }
+            ],
+            # "stickers": {
+            #     "fbc30a9b-42d0-4cf7-80c0-31fb048346f9": "0baced9640b2",
+            #     "645250ca-1ae8-4514-914d-c070351dd905": "815016901edd"
+            # },
+            # "stopwatch": {"running": True},
+            # "timer": {
+            #     "running": True,
+            #     "seconds": 600
+            # }
+        }
+        headers = {
+            "Content-Type": "application/json",
+            "Authorization": f"Bearer {key}"
+        }
+
+        response = requests.request("POST", url, json=payload, headers=headers)
+
+        print(response.text)
+
 
 
 
 
 company_id_adun = '62697425-36fb-461d-945a-0a54dd008105'
 key = 'ehCLgtqOp8h9Jwb5fZSTgX05k9jTSlInz70hakr0dieiDwMJXvOW97+ESJa5b-ZY'
-
-NetworkingManager.getTasks(column_id='80169cbb-1643-4620-9211-e9ceb4f16deb', key=key)
+NetworkingManager.getApiKey(password='7Kj-eFX-72w-5PM', login='sadovodov2002@gmail.com', companyID=company_id_adun)
+# NetworkingManager.createTask(columnId='80169cbb-1643-4620-9211-e9ceb4f16deb', title='aaa', key=key)
+# NetworkingManager.getTaskById(task_id='4810c2f5-6105-4b48-849f-b63602beb936', key=key)
+# NetworkingManager.createSubtask(taskId='4810c2f5-6105-4b48-849f-b63602beb936', title='aaa', description='sss', key=key)
+# NetworkingManager.getTasksByTitle(title='qqq', key=key)
+# NetworkingManager.getTasksByColumn(column_id='80169cbb-1643-4620-9211-e9ceb4f16deb', key=key)
 # NetworkingManager.deleteColumn(column_id='30d00704-5634-4ad6-983f-11661cba0970', key=key)
 # NetworkingManager.createColumn(board_id='8d0b3203-ba18-493e-b01a-9b35d89fc2a2', title="In Progress", key=key)
 # NetworkingManager.getColumns(board_id='8d0b3203-ba18-493e-b01a-9b35d89fc2a2', key=key)
@@ -442,11 +552,11 @@ NetworkingManager.getTasks(column_id='80169cbb-1643-4620-9211-e9ceb4f16deb', key
 # NetworkingManager.getProjectById(key=key, project_id="0f57b6e1-93aa-4a33-90b1-f2ecae9c71fa")
 # NetworkingManager.getProjects(key)
 # NetworkingManager.getStaffById(id="7cd5f056-ae44-4eb8-a01e-fc4a808d31e0", key=key)
-
-# NetworkingManager.inviteStaff(email='kirill.smirnov.spb@gmail.com', key=key)
+# NetworkingManager.inviteStaff(email='user@mail.ru', key=key)
 # NetworkingManager.login(password='7Kj-eFX-72w-5PM', login='sadovodov2002@gmail.com', companyName='adun')
 # NetworkingManager.getStaff(key=key)
 # NetworkingManager.getApiKey(password='7Kj-eFX-72w-5PM', login='sadovodov2002@gmail.com', companyID=company_id_adun)
 # NetworkingManager.createApiKey(password='7Kj-eFX-72w-5PM', login='sadovodov2002@gmail.com', companyID=company_id_adun)
 # NetworkingManager.login(password='7Kj-eFX-72w-5PM', login='sadovodov2002@gmail.com', companyName='adun')
+
 
