@@ -228,6 +228,30 @@ class NetworkingManager:
         response = requests.request("POST", url, json=payload, headers=headers)
 
         print(response.text)
+
+    @staticmethod
+    def editProject(project_id: str, key: str, title = None, isDelete = False, users = dict()):
+
+        url = f"https://ru.yougile.com/api-v2/projects/{project_id}"
+        if title is None:
+            payload = {
+                "deleted": isDelete,
+                "title": f"{title}",
+            }
+        else:
+            payload = {
+                "deleted": isDelete,
+                    "users": users
+            }
+        headers = {
+            "Content-Type": "application/json",
+            "Authorization": f"Bearer {key}"
+        }
+
+        response = requests.request("PUT", url, json=payload, headers=headers)
+
+        print(response.text)
+
     
 # -------------------------- BOARDS ------------------------------
 
@@ -534,7 +558,15 @@ class NetworkingManager:
 
 company_id_adun = '62697425-36fb-461d-945a-0a54dd008105'
 key = 'ehCLgtqOp8h9Jwb5fZSTgX05k9jTSlInz70hakr0dieiDwMJXvOW97+ESJa5b-ZY'
-NetworkingManager.getApiKey(password='7Kj-eFX-72w-5PM', login='sadovodov2002@gmail.com', companyID=company_id_adun)
+key2 = "W7Mfahp0mlU+bHN5WxUSwzdPgiZmNgZ3XQmwY5l7WlHdaHpl+OUA+Fw5F7zDMPHg"
+
+
+
+# NetworkingManager.getStaff(key=key2)
+NetworkingManager.getProjectById(key="W7Mfahp0mlU+bHN5WxUSwzdPgiZmNgZ3XQmwY5l7WlHdaHpl+OUA+Fw5F7zDMPHg", project_id="42b08f17-b53c-4aee-8b1e-f83039c677ff")
+# NetworkingManager.getProjects(key='W7Mfahp0mlU+bHN5WxUSwzdPgiZmNgZ3XQmwY5l7WlHdaHpl+OUA+Fw5F7zDMPHg')
+# NetworkingManager.createApiKey(password='80156220722vlad', login='sadovodov23092002@mail.ru', companyID='aee173e7-46ab-49ca-a688-23f9ba250b07')
+# NetworkingManager.getApiKey(password='7Kj-eFX-72w-5PM', login='sadovodov2002@gmail.com', companyID=company_id_adun)
 # NetworkingManager.createTask(columnId='80169cbb-1643-4620-9211-e9ceb4f16deb', title='aaa', key=key)
 # NetworkingManager.getTaskById(task_id='4810c2f5-6105-4b48-849f-b63602beb936', key=key)
 # NetworkingManager.createSubtask(taskId='4810c2f5-6105-4b48-849f-b63602beb936', title='aaa', description='sss', key=key)
