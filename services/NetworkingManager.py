@@ -241,7 +241,7 @@ class NetworkingManager:
         else:
             payload = {
                 "deleted": isDelete,
-                    "users": users
+                "users": users
             }
         headers = {
             "Content-Type": "application/json",
@@ -518,21 +518,21 @@ class NetworkingManager:
             #     "plan": 10,
             #     "work": 5
             # },
-            "checklists": [
-                {
-                    "title": "list 1",
-                    "items": [
-                        {
-                            "title": "option 1",
-                            "isCompleted": False
-                        },
-                        {
-                            "title": "option 2",
-                            "isCompleted": False
-                        }
-                    ]
-                }
-            ],
+            # "checklists": [
+            #     {
+            #         "title": "list 1",
+            #         "items": [
+            #             {
+            #                 "title": "option 1",
+            #                 "isCompleted": False
+            #             },
+            #             {
+            #                 "title": "option 2",
+            #                 "isCompleted": False
+            #             }
+            #         ]
+            #     }
+            # ],
             # "stickers": {
             #     "fbc30a9b-42d0-4cf7-80c0-31fb048346f9": "0baced9640b2",
             #     "645250ca-1ae8-4514-914d-c070351dd905": "815016901edd"
@@ -552,6 +552,45 @@ class NetworkingManager:
 
         print(response.text)
 
+    @staticmethod
+    def etitTask(task_id: str, key: str, title = None, isDeleted = False, isComplete = False, column_id = None, description = None):
+
+        url = f"https://ru.yougile.com/api-v2/tasks/{task_id}"
+
+        if title:
+            payload = {
+                "title": f"{title}"
+            }
+        elif column_id:
+            payload = {
+                "columnId": f"{column_id}",
+            }
+        elif description:
+            payload = {
+                "description": f"{description}"
+            }
+        else:
+            payload = {
+                "deleted": isDeleted,
+                "completed": isComplete,
+                # "subtasks": ["0fe1e417-2415-4e76-932a-ca07a25d6c64", "f0118d9e-2888-48e4-a172-116085da4279"],
+                # "assigned": ["80eed1bd-eda3-4991-ac17-09d28566749d"],
+                # "deadline": {
+                #     "deadline": 1653029146646,
+                #     "startDate": 1653028146646,
+                #     "withTime": True,
+                #     "deleted": True
+                # }
+            }
+        headers = {
+            "Content-Type": "application/json",
+            "Authorization": f"Bearer {key}"
+        }
+
+        response = requests.request("PUT", url, json=payload, headers=headers)
+
+        print(response.text)
+
 
 
 
@@ -563,7 +602,7 @@ key2 = "W7Mfahp0mlU+bHN5WxUSwzdPgiZmNgZ3XQmwY5l7WlHdaHpl+OUA+Fw5F7zDMPHg"
 
 
 # NetworkingManager.getStaff(key=key2)
-NetworkingManager.getProjectById(key="W7Mfahp0mlU+bHN5WxUSwzdPgiZmNgZ3XQmwY5l7WlHdaHpl+OUA+Fw5F7zDMPHg", project_id="42b08f17-b53c-4aee-8b1e-f83039c677ff")
+# NetworkingManager.getProjectById(key="W7Mfahp0mlU+bHN5WxUSwzdPgiZmNgZ3XQmwY5l7WlHdaHpl+OUA+Fw5F7zDMPHg", project_id="42b08f17-b53c-4aee-8b1e-f83039c677ff")
 # NetworkingManager.getProjects(key='W7Mfahp0mlU+bHN5WxUSwzdPgiZmNgZ3XQmwY5l7WlHdaHpl+OUA+Fw5F7zDMPHg')
 # NetworkingManager.createApiKey(password='80156220722vlad', login='sadovodov23092002@mail.ru', companyID='aee173e7-46ab-49ca-a688-23f9ba250b07')
 # NetworkingManager.getApiKey(password='7Kj-eFX-72w-5PM', login='sadovodov2002@gmail.com', companyID=company_id_adun)
