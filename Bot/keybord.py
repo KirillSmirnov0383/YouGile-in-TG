@@ -1,37 +1,26 @@
 from telegram import InlineKeyboardButton
 
 KMain_menu = [
-    [InlineKeyboardButton("Сменить пользователя", callback_data="auth")],
-    [InlineKeyboardButton("Сменить компанию", callback_data="auth")],
     [InlineKeyboardButton("Сотрудники", callback_data="employees")],
-    [InlineKeyboardButton("Проекты", callback_data="projects")],
-    [InlineKeyboardButton("Доски", callback_data="boards")]
+    [InlineKeyboardButton("Проекты", callback_data="projects_list")],
+    [InlineKeyboardButton("Выйти", callback_data="auth")]
     
     ]
-
-KEmployees_menu = [
-            [InlineKeyboardButton("Весь список сотрудников", callback_data="members_list")],
-            [InlineKeyboardButton("Поиск по email", callback_data="search_email")],
-            [InlineKeyboardButton("Пригласить в компанию", callback_data="invite_people")],
-            [InlineKeyboardButton("Поиск по проекту", callback_data="search_project")],
-            [InlineKeyboardButton("Назад", callback_data="main_menu")]
-        ]
 
 start = [
             [InlineKeyboardButton("Авторизация", callback_data="auth")]
         ]
 
 KAuthorization_menu = [
-    [InlineKeyboardButton("Логин", callback_data="??")],
-    [InlineKeyboardButton("Компания", callback_data="??")],
-    [InlineKeyboardButton("Пароль", callback_data="??")],
+    [InlineKeyboardButton("Логин", callback_data="login")],
+    [InlineKeyboardButton("Пароль", callback_data="password")],
+    [InlineKeyboardButton("Компания", callback_data="company")],
     [InlineKeyboardButton("Вход", callback_data="main_menu")]
     ]
 
 KProject_menu = [
             [InlineKeyboardButton("Список проектов", callback_data="projects_list")],
             [InlineKeyboardButton("Создать проект", callback_data="project_create")],
-            [InlineKeyboardButton("доски", callback_data="board")],
             [InlineKeyboardButton("Назад", callback_data="main_menu")]
     ]   
 
@@ -40,3 +29,26 @@ KBoard_menu = [
             [InlineKeyboardButton("Изменить", callback_data="board_change")],
             [InlineKeyboardButton("Назад", callback_data="main_menu")]
     ]
+
+KChange_User = [
+            [InlineKeyboardButton("Удалить пользователя", callback_data="deletUser")],
+            [InlineKeyboardButton("Выдать админку", callback_data="giveAdminRule")],
+            [InlineKeyboardButton("Забрать админку", callback_data="takeAdminRule")],
+            [InlineKeyboardButton("Назад", callback_data="members_list")]
+    ]
+
+KInfo_project = [
+            [InlineKeyboardButton("Пользователи", callback_data="UsersByProjectId")],
+            [InlineKeyboardButton("Изменить проект", callback_data="change_project")],
+            [InlineKeyboardButton("Удалить проект", callback_data="deleate_project")],
+            [InlineKeyboardButton("Назад", callback_data="projects_list")]
+    ]
+
+KChange_Project = [
+            [InlineKeyboardButton("Добавить участника", callback_data="???")],
+            [InlineKeyboardButton("Удалить Участника", callback_data="???")],
+            [InlineKeyboardButton("Изменить роль участника", callback_data="???")],
+            [InlineKeyboardButton("Изменить имя проекта", callback_data="renameProject")],
+            [InlineKeyboardButton("Назад", callback_data="KInfo_project")]
+    ]
+
