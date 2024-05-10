@@ -1,9 +1,95 @@
 import requests
+from datetime import datetime
 
 key1 = 'f5jmTUMVBtPQ334LDbgmChHfDj+cfiiQ7sI2dCH4ElxQaMUeuj-dlDqs3RhKFJqK'
 
 class NetworkingManager: 
 
+    @staticmethod
+    def format_single_date(date):
+        return date.strftime("%Y-%m-%d %H:%M:%S")
+
+
+
+    @staticmethod
+    def format_user(data: dict):
+        """
+        {
+            "id": "4f6f0391-0f94-4d30-9b0e-99430a36d4fb",
+            "email": "example.user@yandex.ru",
+            "isAdmin": false,
+            "realName": "Калганов Андрей Алексеевич",
+            "status": "online",
+            "lastActivity": "1656012328"
+        }
+        """
+        date = NetworkingManager.format_single_date(data['lastActivity'])
+        name = data['realName'].encode('utf-8').decode('unicode-escape')
+
+        returned_data = {
+            "Имя": name,
+            "Почта": data['email'],
+            "Статус": data['status'],
+            "Последняя активность": f"{date}",
+            "Админ": data["isAdmin"]
+            }
+        
+        return returned_data
+    
+    @staticmethod
+    def format_board(data: dict, key: str):
+        """{
+            "deleted": true,
+            "id": "4f6f0391-0f94-4d30-9b0e-99430a36d4fb",
+            "title": "Тестирование",
+            "projectId": "001623dc-6501-461b-9de6-c1d1d6fc1d16",
+            "stickers": {
+                "timer": false,
+                "deadline": true,
+                "stopwatch": true,
+                "timeTracking": true,
+                "assignee": true,
+                "repeat": true,
+                "custom": {
+                "fbc30a9b-42d0-4cf7-80c0-31fb048346f9": true,
+                "645250ca-1ae8-4514-914d-c070351dd905": true
+                    }
+                }
+            }
+            """
+        returned_data = {
+            "Название": data['title'],
+        }
+
+        return returned_data
+    
+    @staticmethod
+    def format_project(data: dict):
+        returned_data = {
+            "Название": data['title'],
+        }
+
+        return returned_data
+    
+    @staticmethod
+    def format_column(data: dict):
+        returned_data = {
+            "Название": data['title'],
+        }
+
+        return returned_data
+    
+    @staticmethod
+    def format_task(data: dict):
+        returned_data = {
+            "Название": data['title'],
+            "Описание": data['description'],
+            "Статус выполнения": data['completed'],
+
+        }
+
+        return returned_data
+    
     @staticmethod
     def login(password: str, login: str, companyName: str):
         url = "https://ru.yougile.com/api-v2/auth/companies"
@@ -283,7 +369,7 @@ class NetworkingManager:
         headers = {
             "Content-Type": "application/json",
             "Authorization": f"Bearer {key}"
-        }
+        } 
 
         response = requests.request("GET", url, headers=headers)
 
