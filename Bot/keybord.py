@@ -30,13 +30,6 @@ KBoard_menu = [
             [InlineKeyboardButton("Назад", callback_data="main_menu")]
     ]
 
-KChange_User = [
-            [InlineKeyboardButton("Удалить пользователя", callback_data="deletUser")],
-            [InlineKeyboardButton("Выдать админку", callback_data="giveAdminRule")],
-            [InlineKeyboardButton("Забрать админку", callback_data="takeAdminRule")],
-            [InlineKeyboardButton("Назад", callback_data="members_list")]
-    ]
-
 KInfo_project = [
             [InlineKeyboardButton("Пользователи", callback_data="UsersByProjectId")],
             [InlineKeyboardButton("Изменить проект", callback_data="change_project")],

@@ -233,10 +233,10 @@ def Kprojects_list(Api, current_page = 0, projects_per_page = 6):
 
     return projects_buttons + navigation_buttons
 
-def Kemploees_info(Flag=True):
+def Kemploees_info(Id, Flag=True):
     if Flag:
         Kemploeesinfo = [
-                [InlineKeyboardButton("Изменить", callback_data="ChangeUser")],
+                [InlineKeyboardButton("Изменить", callback_data=f"ChangeUserId{Id}")],
                 [InlineKeyboardButton("Назад", callback_data="members_list")]
         ]
     else:
@@ -311,10 +311,11 @@ def Kboards_info(BoardId, PrId):
 
 def Ktask_info(TaskId):
     KBoard_Meny = [
-            [InlineKeyboardButton(f"???", callback_data=f"???")],
-            [InlineKeyboardButton(f"???", callback_data=f"???")],
-            [InlineKeyboardButton(f"???", callback_data=f"???")],
-            [InlineKeyboardButton("???", callback_data=f"???")]
+            [InlineKeyboardButton(f"Изменить название", callback_data=f"???")],
+            [InlineKeyboardButton(f"Изменить описание", callback_data=f"???")],
+            [InlineKeyboardButton(f"Выполнить", callback_data=f"???")],
+            [InlineKeyboardButton("Удалить", callback_data=f"DeleteTaskById{TaskId}")],
+            [InlineKeyboardButton(f"Назад", callback_data=f"???")],
     ]
     return KBoard_Meny
 
@@ -325,4 +326,13 @@ def KEdit_board(BoId):
             [InlineKeyboardButton("Назад", callback_data=f"BoardsById{BoId}")]
     ]
     return KEdit_board
+
+def KChange_User(UserId):
+    KChange_User = [
+            [InlineKeyboardButton("Удалить пользователя", callback_data="deletUser")],
+            [InlineKeyboardButton("Выдать админку", callback_data="giveAdminRule")],
+            [InlineKeyboardButton("Забрать админку", callback_data="takeAdminRule")],
+            [InlineKeyboardButton("Назад", callback_data=f"employeesBoardId{UserId}")]
+    ]
+    return KChange_User
 

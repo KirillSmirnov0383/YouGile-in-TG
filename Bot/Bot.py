@@ -1,7 +1,7 @@
 from telegram import InlineKeyboardMarkup, InlineKeyboardButton
 from telegram.ext import Updater, CommandHandler, CallbackQueryHandler, Application, MessageHandler, filters
-from Bot.keybord import KMain_menu, start, KAuthorization_menu, KBoard_menu, KProject_menu, KChange_User
-from Bot.createKeyboard import Kmembers_list, Kprojects_list, Kemploees_info, KEmployees_menu, KInfo_project, KChange_Project, KChange_Role_User_Project, KBoard_Meny, Kboards_list, Kboards_info, Kcolum_list, Ktask_list, Ktask_info, KEdit_board
+from Bot.keybord import KMain_menu, start, KAuthorization_menu, KBoard_menu, KProject_menu
+from Bot.createKeyboard import Kmembers_list, Kprojects_list, Kemploees_info, KEmployees_menu, KInfo_project, KChange_Project, KChange_Role_User_Project, KBoard_Meny, Kboards_list, Kboards_info, Kcolum_list, Ktask_list, Ktask_info, KEdit_board, KChange_User
 import sys 
 from services.NetworkingManager import NetworkingManager as NM
 from DB.Database import DatabaseManager
@@ -261,18 +261,18 @@ class TelegramBot:
         self.User_ID = id[id.find('Id')+2:]
         user_data = self.DB.get_user_data(self.TGID)
         Api = NM.getApiKey(login=user_data["email"], password=user_data["password"], companyID=self.companyID)
-        data, flagAdmin = NM.getStaffById(self.User_ID, Api)
+        data = NM.getStaffById(self.User_ID, Api)
 
-        reply_markup = InlineKeyboardMarkup(Kemploees_info())
+        reply_markup = InlineKeyboardMarkup(Kemploees_info(Id = self.User_ID))
         await context.bot.edit_message_text(chat_id=update.callback_query.message.chat_id,
                                       message_id=update.callback_query.message.message_id,
                                       text=data,
                                       reply_markup=reply_markup)
-    async def ChangeUser(self, update, context):
-        reply_markup = InlineKeyboardMarkup(KChange_User)
+    async def ChangeUser(self, update, context, UserId):
+        reply_markup = InlineKeyboardMarkup(KChange_User(UserId))
         await context.bot.edit_message_text(chat_id=update.callback_query.message.chat_id,
                                       message_id=update.callback_query.message.message_id,
-                                      text="data",
+                                      text="Выберите действие, которые хотите применить к данному пользователю",
                                       reply_markup=reply_markup)
         
     async def deletUser(self, update, context):
@@ -452,6 +452,13 @@ class TelegramBot:
                                             reply_markup=reply_markup)
         self.state = {self.STATE_CREATE_COLUM: BoId}
 
+    async def edit_task(self, update, context, TaId, FlagDel=None):
+        user_data = self.DB.get_user_data(self.TGID)
+        Api = NM.getApiKey(login=user_data["email"], password=user_data["password"], companyID=self.companyID)
+        NM.etitTask(key=Api, task_id=TaId, isDeleted=FlagDel)
+        await start()
+
+
     async def button_handler(self, update, context):
         global LMEMBERS
         global LPROJECT
@@ -470,8 +477,8 @@ class TelegramBot:
                 user_dict = self.DB.get_user_data(self.TGID)
                 company_id = NM.login(user_dict["password"], user_dict["email"], user_dict["company"])
                 if company_id:
-                    self.companyID = self.DB.add_company(company_id, user_dict["company"])
-                    self.DB.add_ApiKey(self.TGID, company_id)
+                    # self.companyID = self.DB.add_company(company_id, user_dict["company"])
+                    # self.DB.add_ApiKey(self.TGID, company_id)
                     await self.main_menu(update, context)
                 else:
                     await self.start(update, context, FlagAuth=False)
@@ -609,10 +616,14 @@ class TelegramBot:
                 await self.takeAdminRule(update, context)
             elif query.data == "project_create":
                 await self.project_create(update, context)
-            elif query.data == "ChangeUser":
-                await self.ChangeUser(update, context)
+            elif "ChangeUserId" in query.data:
+                UserId = query.data[query.data.find('Id')+2:]
+                await self.ChangeUser(update, context, UserId)
             elif "deleate_projectId" in query.data:
                 await self.edit_project(update=update, context=context, title=query.data, isDeleate=True)
+            elif "DeleteTaskById" in query.data:
+                TaId = query.data[query.data.find('Id')+2:]
+                await self.edit_task(update=update, context=context, TaId=TaId, FlagDel=True)
             
 
                 

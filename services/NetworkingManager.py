@@ -1,4 +1,7 @@
 import requests
+import json
+from datetime import datetime
+
 
 key = 'f5jmTUMVBtPQ334LDbgmChHfDj+cfiiQ7sI2dCH4ElxQaMUeuj-dlDqs3RhKFJqK'
 
@@ -21,7 +24,7 @@ class NetworkingManager:
             id_value = response_json["content"][0]["id"]
             return id_value
         else:
-            return False
+            return True
 
 
     # запускается только при первом входе
@@ -49,7 +52,7 @@ class NetworkingManager:
     def getApiKey(password: str, login: str, companyID: str):
 
         url = "https://ru.yougile.com/api-v2/auth/keys/get"
-        #return 'jkTWpLFxm0i1xY27dWbd4se4pknDoKpcEaXBZWf3vFdFBATKfzdetqNULmQKYmXk'
+        return 'jkTWpLFxm0i1xY27dWbd4se4pknDoKpcEaXBZWf3vFdFBATKfzdetqNULmQKYmXk'
         payload = {
             "login": f"{login}",
             "password": f"{password}",
@@ -103,11 +106,7 @@ class NetworkingManager:
         response = requests.request("GET", url, headers=headers)
 
         data = response.json()
-        FlagAdmin = data['isAdmin']
-        new_data = ''
-        for key in data.keys():
-            new_data += f"{key}: {data[key]}\n"
-        return new_data, FlagAdmin
+        return NetworkingManager.format_user(data)
 
     @staticmethod
     def isAdmin(id: str, key: str):
@@ -186,7 +185,7 @@ class NetworkingManager:
 
         response = requests.request("GET", url, headers=headers).json()
         
-        return response
+        return NetworkingManager.format_project(response)
 
     @staticmethod
     def deleteUser(key: str, user_id: str):
@@ -313,9 +312,10 @@ class NetworkingManager:
             "Authorization": f"Bearer {key}"
         }
 
-        response = requests.request("GET", url, headers=headers)
+        response = requests.request("GET", url, headers=headers).json()
+    
 
-        return response.text
+        return NetworkingManager.format_board(response)
     
     @staticmethod
     def deleteBoard(board_id: str, key: str):
@@ -383,7 +383,7 @@ class NetworkingManager:
 
         response = requests.request("GET", url, headers=headers)
 
-        return response.text
+        return NetworkingManager.format_task(response.json())
     
     @staticmethod
     def renameBoard(board_id: str, new_title: str, key: str):
@@ -420,6 +420,123 @@ class NetworkingManager:
         response = requests.request("POST", url, json=payload, headers=headers)
 
         print(response.text)
+
+    @staticmethod
+    def etitTask(task_id: str, key: str, title = None, isDeleted = False, isComplete = False, column_id = None, description = None):
+
+        url = f"https://ru.yougile.com/api-v2/tasks/{task_id}"
+
+        if title:
+            payload = {
+                "title": f"{title}"
+            }
+        elif column_id:
+            payload = {
+                "columnId": f"{column_id}",
+            }
+        elif description:
+            payload = {
+                "description": f"{description}"
+            }
+        else:
+            payload = {
+                "deleted": isDeleted,
+                "completed": isComplete,
+                # "subtasks": ["0fe1e417-2415-4e76-932a-ca07a25d6c64", "f0118d9e-2888-48e4-a172-116085da4279"],
+                # "assigned": ["80eed1bd-eda3-4991-ac17-09d28566749d"],
+                # "deadline": {
+                #     "deadline": 1653029146646,
+                #     "startDate": 1653028146646,
+                #     "withTime": True,
+                #     "deleted": True
+                # }
+            }
+        headers = {
+            "Content-Type": "application/json",
+            "Authorization": f"Bearer {key}"
+        }
+
+        response = requests.request("PUT", url, json=payload, headers=headers)
+
+        print(response.text)
+
+
+    @staticmethod
+    def format_single_date(date):
+        deadline_datetime = datetime.fromtimestamp(date / 1000)
+        return deadline_datetime.strftime("%Y-%m-%d %H:%M:%S")
+
+
+    @staticmethod
+    def decode(data):
+        decoded_dict = json.loads(str(data))
+        return decoded_dict
+
+
+    @staticmethod
+    def format_user(data: dict):
+        """
+        {
+            "id": "4f6f0391-0f94-4d30-9b0e-99430a36d4fb",
+            "email": "example.user@yandex.ru",
+            "isAdmin": false,
+            "realName": "Калганов Андрей Алексеевич",
+            "status": "online",
+            "lastActivity": "1656012328"
+        }
+        """
+        date = NetworkingManager.format_single_date(data['lastActivity'])
+        # name = NetworkingManager.decode(data['realName'])
+
+        returned_data = f"""Имя: {data['realName']}\nПочта: {data['email']}\nСтатус: {data['status']}\nПоследняя активность: {date}\nАдмин: {data["isAdmin"]}
+            """
+        
+        return returned_data
+    
+    @staticmethod
+    def format_board(data: dict):
+        """{
+            "deleted": true,
+            "id": "4f6f0391-0f94-4d30-9b0e-99430a36d4fb",
+            "title": "Тестирование",
+            "projectId": "001623dc-6501-461b-9de6-c1d1d6fc1d16",
+            "stickers": {
+                "timer": false,
+                "deadline": true,
+                "stopwatch": true,
+                "timeTracking": true,
+                "assignee": true,
+                "repeat": true,
+                "custom": {
+                "fbc30a9b-42d0-4cf7-80c0-31fb048346f9": true,
+                "645250ca-1ae8-4514-914d-c070351dd905": true
+                    }
+                }
+            }
+            """
+        return f"Название: {data['title']}"
+    
+    @staticmethod
+    def format_project(data: dict):
+        return f"Название: {data['title']}"
+    
+    
+    @staticmethod
+    def format_column(data: dict):
+        return f"Название: {NetworkingManager.decode(data['title'])}"
+
+    
+    @staticmethod
+    def format_task(data: dict):
+        try:
+            returned_data = f"""Название: {data['title']}\nОписание: {data['description']}\nСтатус выполнения: {data['completed']}
+            """
+        except: 
+            returned_data = f"""Название: {data['title']}\n\nСтатус выполнения: {data['completed']}
+            """
+        
+
+        return returned_data
 # NetworkingManager.getProjectById(key=key, project_id="42b08f17-b53c-4aee-8b1e-f83039c677ff")
 # NetworkingManager.getProjects(key)
 # NetworkingManager.getStaffById(id="7cd5f056-ae44-4eb8-a01e-fc4a808d31e0", key=key)
