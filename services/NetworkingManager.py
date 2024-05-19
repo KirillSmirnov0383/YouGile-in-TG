@@ -10,6 +10,11 @@ class NetworkingManager:
         return date.strftime("%Y-%m-%d %H:%M:%S")
 
 
+    @staticmethod
+    def decode(data):
+        decoded_data = data.encode('utf-8').decode('unicode-escape')
+        return decoded_data
+
 
     @staticmethod
     def format_user(data: dict):
@@ -58,7 +63,7 @@ class NetworkingManager:
             }
             """
         returned_data = {
-            "Название": data['title'],
+            "Название": NetworkingManager.decode(data['title']),
         }
 
         return returned_data
@@ -66,7 +71,7 @@ class NetworkingManager:
     @staticmethod
     def format_project(data: dict):
         returned_data = {
-            "Название": data['title'],
+            "Название": NetworkingManager.decode(data['title']),
         }
 
         return returned_data
@@ -74,7 +79,7 @@ class NetworkingManager:
     @staticmethod
     def format_column(data: dict):
         returned_data = {
-            "Название": data['title'],
+            "Название": NetworkingManager.decode(data['title']),
         }
 
         return returned_data
@@ -82,9 +87,9 @@ class NetworkingManager:
     @staticmethod
     def format_task(data: dict):
         returned_data = {
-            "Название": data['title'],
-            "Описание": data['description'],
-            "Статус выполнения": data['completed'],
+            "Название": NetworkingManager.decode(data['title']),
+            "Описание": NetworkingManager.decode(data['description']),
+            "Статус выполнения": NetworkingManager.decode(data['completed']),
 
         }
 
