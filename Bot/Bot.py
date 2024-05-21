@@ -35,6 +35,10 @@ class TelegramBot:
         self.STATE_CREATE_BOARD = 8
         self.STATE_RENAME_BOARD = 9
         self.STATE_CREATE_COLUM = 10
+        self.STATE_CREATE_TASK = 11
+        self.STATE_CHANGE_DESC = 12
+        self.STATE_CHANGE_TITLE_TASK = 13
+
         self.TGID = None
 
         self.companyID = None
@@ -254,6 +258,30 @@ class TelegramBot:
             await self.colum_list(update, context, self.Board_ID)
             self.state = None
             #await self.delete_last_messages(update, context)
+        elif self.state == self.STATE_CREATE_TASK or self.STATE_CREATE_TASK in self.state.keys():
+            user_data = self.DB.get_user_data(self.TGID)
+            Api = NM.getApiKey(login=user_data["email"], password=user_data["password"], companyID=self.companyID)
+            title = update.message.text
+            NM.createTask(key=Api, title=title, columnId=self.state[11])
+            await self.task_list(update, context, self.state[11])
+            self.state = None
+            #await self.delete_last_messages(update, context)
+        elif self.state == self.STATE_CHANGE_DESC or self.STATE_CHANGE_DESC in self.state.keys():
+            user_data = self.DB.get_user_data(self.TGID)
+            Api = NM.getApiKey(login=user_data["email"], password=user_data["password"], companyID=self.companyID)
+            title = update.message.text
+            NM.etitTask(task_id=self.state[12], key=Api, description=title)
+            await self.task_info(update, context, self.state[12])
+            self.state = None
+            #await self.delete_last_messages(update, context)
+        elif self.state == self.STATE_CHANGE_TITLE_TASK or self.STATE_CHANGE_TITLE_TASK in self.state.keys():
+            user_data = self.DB.get_user_data(self.TGID)
+            Api = NM.getApiKey(login=user_data["email"], password=user_data["password"], companyID=self.companyID)
+            title = update.message.text
+            NM.etitTask(task_id=self.state[13], key=Api, title=title)
+            await self.task_info(update, context, self.state[13])
+            self.state = None
+            #await self.delete_last_messages(update, context)
         else:
             await update.message.reply_text("Что вы хотите изменить?")
     
@@ -328,7 +356,7 @@ class TelegramBot:
         reply_markup = InlineKeyboardMarkup(KChange_Project(projectId))
         await context.bot.edit_message_text(chat_id=update.callback_query.message.chat_id,
                                             message_id=update.callback_query.message.message_id,
-                                            text="Хуй пизда",
+                                            text="Редактирование проекта",
                                             reply_markup=reply_markup)
 
     # async def change_project():
@@ -423,11 +451,14 @@ class TelegramBot:
         user_data = self.DB.get_user_data(self.TGID)
         Api = NM.getApiKey(login=user_data["email"], password=user_data["password"], companyID=self.companyID)
         data = NM.getTaskById(task_id=LskId, key=Api)
-        reply_markup = InlineKeyboardMarkup(Ktask_info(LskId))
-        await context.bot.edit_message_text(chat_id=update.callback_query.message.chat_id,
-                                    message_id=update.callback_query.message.message_id,
-                                    text=data,
-                                    reply_markup=reply_markup)
+        reply_markup = InlineKeyboardMarkup(Ktask_info(LskId, self.Colum_ID))
+        try:
+            await context.bot.edit_message_text(chat_id=update.callback_query.message.chat_id,
+                                        message_id=update.callback_query.message.message_id,
+                                        text=data,
+                                        reply_markup=reply_markup)
+        except AttributeError:
+            await update.message.reply_text(text=data, reply_markup=reply_markup)
         
     async def edit_board(self, update, context, BoId):
         reply_markup = InlineKeyboardMarkup(KEdit_board(BoId))
@@ -452,12 +483,38 @@ class TelegramBot:
                                             reply_markup=reply_markup)
         self.state = {self.STATE_CREATE_COLUM: BoId}
 
-    async def edit_task(self, update, context, TaId, FlagDel=None):
+    async def edit_task(self, update, context, TaId, FlagDel=False, Compl=False):
         user_data = self.DB.get_user_data(self.TGID)
         Api = NM.getApiKey(login=user_data["email"], password=user_data["password"], companyID=self.companyID)
-        NM.etitTask(key=Api, task_id=TaId, isDeleted=FlagDel)
-        await start()
+        NM.etitTask(key=Api, task_id=TaId, isDeleted=FlagDel, isComplete=Compl)
+        if Compl:
+            await self.task_info(update, context, TaId)
+        else:
+            await self.task_list(update, context, self.Colum_ID)
 
+    async def create_task(self, update, context, ClId):
+        reply_markup = InlineKeyboardMarkup([[InlineKeyboardButton("Назад", callback_data=f"ColumById{ClId}")]])
+        await context.bot.edit_message_text(chat_id=update.callback_query.message.chat_id,
+                                            message_id=update.callback_query.message.message_id,
+                                            text="Пожалуйста, введите название Таски:",
+                                            reply_markup=reply_markup)
+        self.state = {self.STATE_CREATE_TASK: ClId}
+
+    async def change_description(self, update, context, TaskId):
+        reply_markup = InlineKeyboardMarkup([[InlineKeyboardButton("Назад", callback_data=f"TaskById{TaskId}")]])
+        await context.bot.edit_message_text(chat_id=update.callback_query.message.chat_id,
+                                            message_id=update.callback_query.message.message_id,
+                                            text="Пожалуйста, введите новое описание для таски:",
+                                            reply_markup=reply_markup)
+        self.state = {self.STATE_CHANGE_DESC: TaskId}
+
+    async def change_task_title(self, update, context, TaskId):
+        reply_markup = InlineKeyboardMarkup([[InlineKeyboardButton("Назад", callback_data=f"TaskById{TaskId}")]])
+        await context.bot.edit_message_text(chat_id=update.callback_query.message.chat_id,
+                                            message_id=update.callback_query.message.message_id,
+                                            text="Пожалуйста, введите новое название для таски:",
+                                            reply_markup=reply_markup)
+        self.state = {self.STATE_CHANGE_TITLE_TASK: TaskId}
 
     async def button_handler(self, update, context):
         global LMEMBERS
@@ -489,6 +546,18 @@ class TelegramBot:
                 except:
                     pass
                 await self.employees_menu(update, context)
+            elif "DeleteTaskById" in query.data:
+                TaId = query.data[query.data.find('Id')+2:]
+                await self.edit_task(update=update, context=context, TaId=TaId, FlagDel=True)
+            elif "CompliteId" in query.data:
+                TaId = query.data[query.data.find('Id')+2:]
+                await self.edit_task(update=update, context=context, TaId=TaId, Compl=True)
+            elif "change_titleId" in query.data:
+                TaId = query.data[query.data.find('Id')+2:]
+                await self.change_task_title(update=update, context=context, TaskId=TaId)
+            elif "change_descriptoinId" in query.data:
+                TaId = query.data[query.data.find('Id')+2:]
+                await self.change_description(update=update, context=context, TaskId=TaId)
             elif "BoardsButRight" in query.data:
                 prId = query.data[query.data.find('Right')+5:]
                 LBOARDS += 1
@@ -524,8 +593,9 @@ class TelegramBot:
             elif "ListBoardsById" in query.data:
                 prId = query.data[query.data.find('Id')+2:]
                 await self.board_list(update, context, prId=prId)
-            #elif "CreateTask" in query.data:
-
+            elif "CreateTask" in query.data:
+                ClId = query.data[query.data.find('Id')+2:]
+                await self.create_task(update, context, ClId=ClId)
             elif "CreateBoardsById" in query.data:
                 prId = query.data[query.data.find('Id')+2:]
                 await self.board_create(update, context, prId=prId)
@@ -573,8 +643,8 @@ class TelegramBot:
                 prId = query.data[query.data.find('Id')+2:]
                 await self.boards_menu(update, context, prId=prId)
             elif 'ColumById' in query.data:
-                CLId = query.data[query.data.find('Id')+2:]
-                await self.task_list(update, context, ColumId=CLId)
+                self.Colum_ID = query.data[query.data.find('Id')+2:]
+                await self.task_list(update, context, ColumId=self.Colum_ID)
             elif 'BoardsById' in query.data:
                 BoardId = query.data[query.data.find('Id')+2:]
                 await self.board_by_id(update, context, BoardId=BoardId)
@@ -621,19 +691,17 @@ class TelegramBot:
                 await self.ChangeUser(update, context, UserId)
             elif "deleate_projectId" in query.data:
                 await self.edit_project(update=update, context=context, title=query.data, isDeleate=True)
-            elif "DeleteTaskById" in query.data:
-                TaId = query.data[query.data.find('Id')+2:]
-                await self.edit_task(update=update, context=context, TaId=TaId, FlagDel=True)
+            
             
 
                 
             else:
-                print("Неизвестнная кнопка")
+                await self.start()
         except:
             if self.state:
                 await self.handle_message(update, context)
             else:
-                print("Неизвестнная кнопка")
+                await self.start()
 
         # Add handling for other buttons if needed
 

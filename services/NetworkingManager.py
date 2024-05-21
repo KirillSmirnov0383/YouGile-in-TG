@@ -460,6 +460,62 @@ class NetworkingManager:
 
         print(response.text)
 
+    @staticmethod
+    def createTask(columnId: str, title: str, key: str, description: str = None):
+
+        url = "https://ru.yougile.com/api-v2/tasks"
+
+        payload = {
+            "title": f"{title}",
+            "columnId": f"{columnId}",
+            "description": f"{description}",
+            "archived": False,
+            "completed": False,
+            # "subtasks": ["329c548b-4869-43e6-a094-9a30e9eed819"],
+            # "assigned": ["80eed1bd-eda3-4991-ac17-09d28566749d"],
+            # "deadline": {
+            #     "deadline": 1653029146646,
+            #     "startDate": 1653028146646,
+            #     "withTime": True
+            # },
+            # "timeTracking": {
+            #     "plan": 10,
+            #     "work": 5
+            # },
+            # "checklists": [
+            #     {
+            #         "title": "list 1",
+            #         "items": [
+            #             {
+            #                 "title": "option 1",
+            #                 "isCompleted": False
+            #             },
+            #             {
+            #                 "title": "option 2",
+            #                 "isCompleted": False
+            #             }
+            #         ]
+            #     }
+            # ],
+            # "stickers": {
+            #     "fbc30a9b-42d0-4cf7-80c0-31fb048346f9": "0baced9640b2",
+            #     "645250ca-1ae8-4514-914d-c070351dd905": "815016901edd"
+            # },
+            # "stopwatch": {"running": True},
+            # "timer": {
+            #     "running": True,
+            #     "seconds": 600
+            # }
+        }
+        headers = {
+            "Content-Type": "application/json",
+            "Authorization": f"Bearer {key}"
+        }
+
+        response = requests.request("POST", url, json=payload, headers=headers)
+
+        print(response.text)
+
 
     @staticmethod
     def format_single_date(date):

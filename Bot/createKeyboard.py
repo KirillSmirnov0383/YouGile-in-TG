@@ -24,25 +24,25 @@ def Ktask_list(Api, columId, BoId, current_page = 0, task_per_page = 6):
         task_buttons.append(buttons_row)
 
     if len(keys) <= 6:
-        navigation_buttons = [[InlineKeyboardButton("Создать Таску", callback_data="CreateTask{columId}")],
+        navigation_buttons = [[InlineKeyboardButton("Создать Таску", callback_data=f"CreateTaskId{columId}")],
             [InlineKeyboardButton(" ", callback_data="-"), 
             InlineKeyboardButton("Назад", callback_data=f"СolumListId{BoId}"), 
             InlineKeyboardButton(" ", callback_data="-")]
         ]
     elif current_page == 0:
-        navigation_buttons = [[InlineKeyboardButton("Создать Таску", callback_data="???")],
+        navigation_buttons = [[InlineKeyboardButton("Создать Таску", callback_data=f"CreateTaskId{columId}")],
             [InlineKeyboardButton(" ", callback_data="-"), 
             InlineKeyboardButton("Назад", callback_data=f"СolumListId{BoId}"), 
             InlineKeyboardButton("->", callback_data=f"TaskButRight{columId}")]
         ]
     elif end_index == len(keys):
-        navigation_buttons = [[InlineKeyboardButton("Создать Таску", callback_data="???")],
+        navigation_buttons = [[InlineKeyboardButton("Создать Таску", callback_data=f"CreateTaskId{columId}")],
             [InlineKeyboardButton("<-", callback_data=f"TaskButLeft{columId}"), 
             InlineKeyboardButton("Назад", callback_data=f"СolumListId{BoId}"), 
             InlineKeyboardButton(" ", callback_data="-")]
         ]
     else:
-        navigation_buttons = [[InlineKeyboardButton("Создать колонку", callback_data="???")],
+        navigation_buttons = [[InlineKeyboardButton("Создать колонку", callback_data=f"CreateTaskId{columId}")],
             [InlineKeyboardButton("<-", callback_data=f"TaskButLeft{columId}"), 
             InlineKeyboardButton("Назад", callback_data=f"СolumListId{BoId}"), 
             InlineKeyboardButton("->", callback_data=f"TaskButRight{columId}")]
@@ -309,13 +309,13 @@ def Kboards_info(BoardId, PrId):
     ]
     return KBoard_Meny
 
-def Ktask_info(TaskId):
+def Ktask_info(TaskId, ColId):
     KBoard_Meny = [
-            [InlineKeyboardButton(f"Изменить название", callback_data=f"???")],
-            [InlineKeyboardButton(f"Изменить описание", callback_data=f"???")],
-            [InlineKeyboardButton(f"Выполнить", callback_data=f"???")],
+            [InlineKeyboardButton(f"Изменить название", callback_data=f"change_titleId{TaskId}")],
+            [InlineKeyboardButton(f"Изменить описание", callback_data=f"change_descriptoinId{TaskId}")],
+            [InlineKeyboardButton(f"Выполнить", callback_data=f"CompliteId{TaskId}")],
             [InlineKeyboardButton("Удалить", callback_data=f"DeleteTaskById{TaskId}")],
-            [InlineKeyboardButton(f"Назад", callback_data=f"???")],
+            [InlineKeyboardButton(f"Назад", callback_data=f"ColumById{ColId}")],
     ]
     return KBoard_Meny
 
